@@ -1,6 +1,9 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import prisma from '@/lib/prisma';
+import { sendEmail } from '@/lib/resend';
+import { createAuthMiddleware, APIError } from 'better-auth/api';
+import { passwordSchema } from '@/lib/schema';
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -8,6 +11,25 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    // requireEmailVerification: true, //? Only enable if you want to require email verification before signing in
+    async sendResetPassword({ user, url }) {
+      sendEmail({
+        to: user.email,
+        subject: 'Reset your password',
+        text: `Click the link to reset your password: ${url}`,
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ url, user }) => {
+      await sendEmail({
+        to: user.email,
+        subject: 'Verify your email',
+        text: `Click the link to verify your email: ${url}`,
+      });
+    },
   },
   user: {
     additionalFields: {
@@ -16,6 +38,24 @@ export const auth = betterAuth({
         input: false,
       },
     },
+  },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (
+        ctx.path === '/reset-password' ||
+        ctx.path === '/sign-up/email' ||
+        ctx.path === '/change-password'
+      ) {
+        const password = ctx.body.password || ctx.body.newPassword;
+        const { error } = passwordSchema.safeParse(password);
+
+        if (error) {
+          throw new APIError('BAD_REQUEST', {
+            message: 'Password must be at least 8 characters long',
+          });
+        }
+      }
+    }),
   },
 });
 

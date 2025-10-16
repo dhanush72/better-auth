@@ -85,7 +85,17 @@ export function LoginForm() {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Password</FormLabel>
+                    <Button asChild variant="link" size="sm">
+                      <Link
+                        href="/forgot-password"
+                        className="link intent-info variant-ghost text-sm"
+                      >
+                        Forgot your Password ?
+                      </Link>
+                    </Button>
+                  </div>
                   <FormControl>
                     <Input
                       type="password"
