@@ -8,18 +8,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { UserAvatar } from '@/components/user-avatar';
-import {
-  Badge,
-  CalendarDaysIcon,
-  MailIcon,
-  ShieldIcon,
-  UserIcon,
-} from 'lucide-react';
+import { CalendarDaysIcon, MailIcon, ShieldIcon, UserIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { getSession } from '@/lib/get-session';
 import { unauthorized } from 'next/navigation';
 import { Metadata } from 'next';
 import { User } from '@/lib/auth';
+import { Badge } from '@/components/ui/badge';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
