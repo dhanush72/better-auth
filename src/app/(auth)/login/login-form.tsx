@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
@@ -22,6 +22,9 @@ import { Spinner } from '@/components/ui/spinner';
 import { GithubIcon } from 'lucide-react';
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/dashboard';
+
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isSocialPending, setIsSocialPending] = useTransition();
@@ -47,7 +50,7 @@ export function LoginForm() {
       }
 
       toast.success('Login successful');
-      router.push('/dashboard');
+      router.push(redirect);
     });
   };
 
