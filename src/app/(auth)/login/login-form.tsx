@@ -19,16 +19,18 @@ import { useTransition } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { Spinner } from '@/components/ui/spinner';
+import { GithubIcon } from 'lucide-react';
 
 export function LoginForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isSocialPending, setIsSocialPending] = useTransition();
 
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: 'dhanuraj7258@gmail.com',
-      password: 'Dhanush123',
+      password: 'dhanush123',
     },
   });
 
@@ -46,6 +48,22 @@ export function LoginForm() {
 
       toast.success('Login successful');
       router.push('/dashboard');
+    });
+  };
+
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
+    setIsSocialPending(async () => {
+      const { error } = await authClient.signIn.social({
+        provider,
+        callbackURL: '/dashboard',
+      });
+
+      if (error) {
+        toast.error(error.message || 'Login failed');
+        return;
+      }
+
+      toast.success('Login successful');
     });
   };
 
@@ -129,7 +147,12 @@ export function LoginForm() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Button type="button" variant="outline">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSocialPending}
+              onClick={() => handleSocialLogin('google')}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="0.98em"
@@ -155,7 +178,13 @@ export function LoginForm() {
               </svg>
               <span>Google</span>
             </Button>
-            <Button type="button" variant="outline">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSocialPending}
+              onClick={() => handleSocialLogin('github')}
+            >
+              <GithubIcon />
               Github
             </Button>
           </div>
